@@ -29,4 +29,7 @@ After installation you may register you [node as Validator](https://gist.github.
 ## Known issues
 
  1. If you use very low-performance server (1core\2ram as an example), steps of building and compile may fail due to SSH timeout. If this happens - just restart ansible, or configure SSH timeouts.
- 
+
+## License
+
+[MIT](https://github.com/Stake-Target/Agoric-easy-deployer/blob/main/LICENSE)
