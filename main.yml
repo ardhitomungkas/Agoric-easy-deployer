@@ -1,0 +1,26 @@
+---
+- hosts: all
+  gather_facts: yes
+
+  vars_prompt:
+    - name: brnchName
+      prompt: "What branch of testnet should we use? (like: \"@agoric/sdk@2.15.1\")"
+      private: no
+
+    - name: ChainNameName
+      prompt: "What chainname is used in this branch? (like: \"agorictest-7\")"
+      private: no
+
+    - name: nodeName
+      prompt: "What NodeName should we use? (like: \"NewAwesomeNode\")"
+      private: no
+
+    - name: monitoringInstall
+      prompt: "Do you want to install Node Exporter on node host? (YES/NO)"
+      private: no
+
+  roles:
+    - node_boostrap
+    - install_agoric
+    - configure_node
+    - { role: node_monitoring, when: "monitoringInstall == 'YES'" }

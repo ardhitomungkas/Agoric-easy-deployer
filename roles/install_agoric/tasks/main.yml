@@ -1,0 +1,26 @@
+- name: Checkout Agoric-SDK repo
+  git:
+    repo: 'https://github.com/Agoric/agoric-sdk'
+    dest: /home/agoric/agoric-sdk
+    version: "{{ brnchName }}"
+  become: true
+  become_user: agoric
+
+- name: Install Agoric Javascript packages
+  yarn:
+    path: /home/agoric/agoric-sdk
+  become: true
+  become_user: agoric
+
+- name: Build Agoric Javascript packages
+  shell: cd /home/agoric/agoric-sdk && yarn build
+  become: true
+  become_user: agoric
+
+- name: Install and build Agoric Cosmos SDK
+  make:
+    chdir: /home/agoric/agoric-sdk/packages/cosmic-swingset
+  become: true
+  become_user: agoric
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/go/bin:/home/agoric/go/bin

@@ -1,0 +1,55 @@
+- name: Download chain.json
+  get_url:
+    url: https://testnet.agoric.net/network-config
+    dest: /home/agoric/agoric-sdk/chain.json
+    mode: 0755
+  become: true
+  become_user: agoric
+
+- name: Initialize your validator
+  shell: "ag-chain-cosmos init --chain-id {{ ChainNameName }} {{ nodeName }}"
+  become: true
+  become_user: agoric
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/go/bin:/home/agoric/go/bin
+
+- name: Download the genesis file
+  get_url:
+    url: https://testnet.agoric.net/genesis.json
+    dest: /home/agoric/.ag-chain-cosmos/config/genesis.json
+    mode: 0755
+  become: true
+  become_user: agoric
+
+- name: Reset the state of your validator
+  shell: ag-chain-cosmos unsafe-reset-all
+  become: true
+  become_user: agoric
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/go/bin:/home/agoric/go/bin
+
+- name: Fix Error failed to parse log level
+  shell: sed -i.bak 's/^log_level/# log_level/' $HOME/.ag-chain-cosmos/config/config.toml
+  become: true
+  become_user: agoric
+
+#TODO: think about pre-creating vars for one-liner
+- name: Replace the seeds and persistent_peers values
+  shell: peers=$(jq '.peers | join(",")' < /home/agoric/agoric-sdk/chain.json) && seeds=$(jq '.seeds | join(",")' < /home/agoric/agoric-sdk/chain.json) && sed -i.bak -e "s/^seeds *=.*/seeds = $seeds/; s/^persistent_peers *=.*/persistent_peers = $peers/" $HOME/.ag-chain-cosmos/config/config.toml
+  become: true
+  become_user: agoric
+
+- name: Create system.d unit for node
+  copy:
+    src: "{{ role_path }}/files/ag-chain-cosmos.service"
+    dest: /etc/systemd/system/ag-chain-cosmos.service
+    mode: 0744
+    owner: root
+    group: root
+
+- name: Start and enable node service
+  systemd: 
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    name: ag-chain-cosmos

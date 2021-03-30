@@ -1,0 +1,66 @@
+- name: Create user agoric
+  user:
+    name: agoric
+    home: /home/agoric
+    create_home: yes
+    shell: /bin/bash
+    state: present
+
+- name: Add NodeJS repo key
+  apt_key:
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Install NodeJS repo
+  apt_repository:
+    repo: deb https://deb.nodesource.com/node_12.x focal main
+    state: present
+
+- name: Install NodeJS SRC repo
+  apt_repository:
+    repo: deb-src https://deb.nodesource.com/node_12.x focal main
+    state: present
+
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  loop: 
+    - "nodejs=12.*"
+    - build-essential
+    - jq
+    - git
+    - fail2ban
+    - netfilter-persistent
+
+- name: Install YARN via npm
+  npm:
+    name: yarn
+    global: yes
+    state: present
+
+- name: Install Golang 1.15
+  unarchive: 
+    src: https://dl.google.com/go/go1.15.7.linux-amd64.tar.gz
+    dest: /usr/local
+    remote_src: yes
+
+- name: Install profile vars
+  copy:
+    src: "{{ role_path }}/files/golansg.sh"
+    dest: /etc/profile.d
+    mode: 0750
+    owner: root
+    group: root
+
+- name: Install bashrc vars
+  lineinfile: 
+    dest: /etc/bash.bashrc
+    line: '{{ item }}'
+    state: present
+  with_items:
+    - 'export GOROOT=/usr/local/go'
+    - 'export GOPATH=$HOME/go'
+    - 'export GO111MODULE=on'
+    - 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'

@@ -1,0 +1,43 @@
+- name: Create NodeExporter user
+  user:
+    name: node_exporter
+    shell: /sbin/nologin
+    state: present  
+
+- name: Create NodeExporter working dir
+  file:
+    path: /var/lib/node_exporter/textfile_collector
+    state: directory
+    owner: node_exporter
+    group: node_exporter
+    mode: 0775
+    recurse: yes
+
+- name: Install NodeExporter
+  unarchive: 
+    src: https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
+    dest: /usr/sbin/
+    remote_src: yes
+
+- name: Install NodeExporter env vars
+  copy:
+    src: "{{ role_path }}/files/env.node_exporter"
+    dest: /etc/node_exporter.env
+    mode: 0744
+    owner: root
+    group: root
+
+- name: Install NodeExporter system.d unit
+  copy:
+    src: "{{ role_path }}/files/node_exporter.service"
+    dest: /etc/systemd/system/node_exporter.service
+    mode: 0744
+    owner: root
+    group: root
+
+- name: Start and enable NodeEsporter service
+  systemd: 
+    state: started
+    enabled: yes
+    daemon_reload: yes
+    name: node_exporter
