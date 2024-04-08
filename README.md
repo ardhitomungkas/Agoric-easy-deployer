@@ -6,7 +6,13 @@
  - Included full monitoring support via [Node Exporter](https://github.com/prometheus/node_exporter) for H\W metrics and Prometeus endpoints of Agoric nodes.
  - Easy repeatable deployment on any number of nodes.
  - For now support only for `Ubuntu 20.xx`
- 
+
+## Known issues
+
+ 1. If you use very low-performance server (1core\2ram as an example), steps of building and compile may fail due to SSH timeout. If this happens - just restart ansible, or configure SSH timeouts.
+
+## What's next?
+After installation you may register you [node as Validator](https://gist.github.com/dckc/c6d4c5800daca0bd3439aee3e024b317) or do nothing, it's all up to you.
 
 ## TL;DR
 1. Clone this repo
@@ -23,12 +29,6 @@
 9. ???
 10. All done!
 
-## What's next?
-After installation you may register you [node as Validator](https://gist.github.com/dckc/c6d4c5800daca0bd3439aee3e024b317) or do nothing, it's all up to you.
-
-## Known issues
-
- 1. If you use very low-performance server (1core\2ram as an example), steps of building and compile may fail due to SSH timeout. If this happens - just restart ansible, or configure SSH timeouts.
 
 ## License
 
